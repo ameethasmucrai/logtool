@@ -28,7 +28,7 @@ Under "data" folder:
 
 Execute, on the project root folder:
  
-gradlew build && java -jar build/libs/logtool-1.0-SNAPSHOT.jar /tmp/example.log 
+./gradlew build && java -jar build/libs/logtool-1.0-SNAPSHOT.jar /tmp/example.log 
 
 
 ### Additional information
