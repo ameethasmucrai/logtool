@@ -13,10 +13,11 @@ the event was finished. The entries in a log file have no specific order
 ### How to run / test the program
 
 Note: 
-- These instructions assume a Linux machine, but it can also be applied to a Windows machine.
+- These instructions assume a Linux machine, but it can also be applied to a Windows machine 
+using similar commands.
 - It requires Java 8
  
-For testing purpuses, there's an example log file supplied "example.log" under "resources" folder. 
+For testing purpuses, there's an example log file supplied "example.log" under "data" folder. 
 Copy this file to some path in the system, for instance "/tmp".
 
 Under "data" folder:
