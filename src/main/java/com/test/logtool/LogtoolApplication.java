@@ -26,34 +26,22 @@ public class LogtoolApplication {
     // Take the input file path as input argument
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(LogtoolApplication.class, args);
+        log.info("LogTool Aplication Started...");
+        if (isArgumentValid(args)) {
+            String fileName = args[0];
+            log.info("Argument: " + fileName);
+            LogReader logReader = (LogReader) context.getBean("logReader");
+            logReader.processFile(fileName);
+        }
     }
 
     /**
-     * Checks the argument and invoke log reader
-     * @param ctx Application context, injected by Spring
-     * @return
-     */
-	@Bean
-	public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
-
-		return args -> {
-			log.info("LogTool Aplication Started...");
-			if (isArgumentValid(args)) {
-				String fileName = args[0];
-				log.info("Argument: " + fileName);
-				LogReader logReader = (LogReader) ctx.getBean("logReader");
-				logReader.processFile(fileName);
-			}
-		};
-
-	}
-
-    /**
      * Verifies if the argument was supplied
+     *
      * @param args Arguments
      * @return True if the argument is valid
      */
-    private boolean isArgumentValid(String args[]) {
+    private static boolean isArgumentValid(String args[]) {
 
         boolean isArgumentValid = true;
         log.info("Check arguments...");

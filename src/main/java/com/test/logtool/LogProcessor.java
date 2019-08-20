@@ -94,6 +94,11 @@ public class LogProcessor implements HasLogger, Runnable {
         waitingForThePair = true;
         while (waitingForThePair) {
             processEntry();
+            try {
+                Thread.sleep(configuration.getWaitTimeCheckPair());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

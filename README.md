@@ -43,8 +43,14 @@ Certain configurations can be adjusted in the application.properties file, for i
 
 Although this application was made to be able process large files, it was not yet tested with a large file (GB).   
 
+
 ### Features and improvements planned for the next releases
 - Implement reading log files in realtime
 - If a log entry does not have it's start or finish pair, the thread should not wait forever 
 
 
+### Changes
+#### 2019-08-20
+- Removed commandLineRunner bean on application start-up, and moved the code to the main method.
+- Checks if the file exists before trying to read, and shows a graceful error message instead of stack trace.
+- Added wait time in the loop that checks if the pair of the log has arrived.

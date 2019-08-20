@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -45,61 +44,69 @@ public class LogReader implements HasLogger {
 
         getLogger().info("Process file...");
 
-        // Create thread pool, managed by Spring
-        ExecutorService executorService = Executors.newFixedThreadPool(configuration.getProcessorThreads());
-
         // Use the Spring resource loader to load the file
         Resource resource = resourceLoader.getResource("file:" + fileName);
 
-        // Read the file, line by line, to be able to process large files
-        InputStream inputStream = null;
-        Scanner sc = null;
-        try {
-            inputStream = resource.getInputStream();
-            sc = new Scanner(inputStream, configuration.getFileEncoding());
-            while (sc.hasNextLine()) {
-                String line = sc.nextLine();
-                LogEntity logEntity = jsonToObject(line);
-                String id = logEntity.getId();
-                // If there is no entry in the first map, it means it is the first entry for that id, so add it to the map and invoke a thread to wait for the corresponding pair
-                if (!firstEntryHashMap.containsKey(id)) {
-                    getLogger().debug("Key not found in first map. Key id=" + id);
-                    firstEntryHashMap.put(id, logEntity);
-                    LogProcessor logProcessor = (LogProcessor) applicationContext.getBean("logProcessor", logEntity);
-                    executorService.submit(logProcessor);
-                }
-                // If there is already one entry in the first map, it means this one is the corresponding pair, so add it to the second map, and let the waiting thread pick it
-                else {
-                    getLogger().debug("Key found in first map. Key id=" + id);
-                    secondEntryHashMap.put(logEntity.getId(), logEntity);
-                }
-            }
-            // Scanner suppresses exceptions
-            if (sc.ioException() != null) {
-                throw sc.ioException();
-            }
-        } catch (Exception e) {
-            getLogger().error(e.getMessage(), e);
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (Exception ex) {
-                    getLogger().error(ex.getMessage(), ex);
-                }
-            }
-            if (sc != null) {
-                sc.close();
-            }
-        }
+        if (!resource.exists()) {
 
-        // Wait some time to finish processing what is in the queue
-        try {
-            executorService.awaitTermination(configuration.getAwaitTermination(), TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            getLogger().error("The file specified was not found! File: " + fileName);
+
+        } else {
+
+            // Create thread pool
+            ExecutorService executorService = Executors.newFixedThreadPool(configuration.getProcessorThreads());
+
+            // Read the file, line by line, to be able to process large files
+            InputStream inputStream = null;
+            Scanner sc = null;
+            try {
+                inputStream = resource.getInputStream();
+                sc = new Scanner(inputStream, configuration.getFileEncoding());
+                while (sc.hasNextLine()) {
+                    String line = sc.nextLine();
+                    LogEntity logEntity = jsonToObject(line);
+                    String id = logEntity.getId();
+                    // If there is no entry in the first map, it means it is the first entry for that id, so add it to the map and invoke a thread to wait for the corresponding pair
+                    if (!firstEntryHashMap.containsKey(id)) {
+                        getLogger().debug("Key not found in first map. Key id=" + id);
+                        firstEntryHashMap.put(id, logEntity);
+                        LogProcessor logProcessor = (LogProcessor) applicationContext.getBean("logProcessor", logEntity);
+                        executorService.submit(logProcessor);
+                    }
+                    // If there is already one entry in the first map, it means this one is the corresponding pair, so add it to the second map, and let the waiting thread pick it
+                    else {
+                        getLogger().debug("Key found in first map. Key id=" + id);
+                        secondEntryHashMap.put(logEntity.getId(), logEntity);
+                    }
+                }
+                // Scanner suppresses exceptions
+                if (sc.ioException() != null) {
+                    throw sc.ioException();
+                }
+            } catch (Exception e) {
+                getLogger().error(e.getMessage(), e);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (Exception ex) {
+                        getLogger().error(ex.getMessage(), ex);
+                    }
+                }
+                if (sc != null) {
+                    sc.close();
+                }
+            }
+
+            // Wait some time to finish processing what is in the queue
+            try {
+                executorService.awaitTermination(configuration.getAwaitTermination(), TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            executorService.shutdown();
+
         }
-        executorService.shutdown();
 
         getLogger().info("Finished processing file...");
 
@@ -107,6 +114,7 @@ public class LogReader implements HasLogger {
 
     /**
      * Converts json log entry into java object
+     *
      * @param logEntry
      * @return
      */

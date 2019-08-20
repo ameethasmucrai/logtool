@@ -13,6 +13,7 @@ public class Configuration {
     private String fileEncoding;
     private String stateFinished;
     private long awaitTermination;
+    private long waitTimeCheckPair;
 
     public long getEventDurationAlertThreshold() {
         return eventDurationAlertThreshold;
@@ -54,6 +55,14 @@ public class Configuration {
         this.awaitTermination = awaitTermination;
     }
 
+    public long getWaitTimeCheckPair() {
+        return waitTimeCheckPair;
+    }
+
+    public void setWaitTimeCheckPair(long waitTimeCheckPair) {
+        this.waitTimeCheckPair = waitTimeCheckPair;
+    }
+
     @Override
     public String toString() {
         return "Configuration{" +
@@ -62,6 +71,7 @@ public class Configuration {
                 ", fileEncoding='" + fileEncoding + '\'' +
                 ", stateFinished='" + stateFinished + '\'' +
                 ", awaitTermination=" + awaitTermination +
+                ", waitTimeCheckPair=" + waitTimeCheckPair +
                 '}';
     }
 
