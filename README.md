@@ -54,3 +54,6 @@ Although this application was made to be able process large files, it was not ye
 - Removed commandLineRunner bean on application start-up, and moved the code to the main method.
 - Checks if the file exists before trying to read, and shows a graceful error message instead of stack trace.
 - Added wait time in the loop that checks if the pair of the log has arrived.
+#### 2019-08-21
+- Improved shutdown of the thread pool
+

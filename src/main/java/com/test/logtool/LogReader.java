@@ -98,13 +98,26 @@ public class LogReader implements HasLogger {
                 }
             }
 
-            // Wait some time to finish processing what is in the queue
+            // Shutdown thread pool but wait for termination of the threads...
+            getLogger().info("Shutdown thread pool and wait for termination...");
             try {
-                executorService.awaitTermination(configuration.getAwaitTermination(), TimeUnit.MILLISECONDS);
+                executorService.shutdown();
+                while (true) {
+                    executorService.awaitTermination(configuration.getAwaitTermination(), TimeUnit.MILLISECONDS);
+                    if (executorService.isTerminated()) {
+                        break;
+                    }
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            executorService.shutdown();
+
+            // Wait until the ExecutorService says it is properly shutdown
+            while (true) {
+                if (executorService.isShutdown()) {
+                    break;
+                }
+            }
 
         }
 
