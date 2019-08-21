@@ -28,6 +28,11 @@ public class LogProcessor implements HasLogger, Runnable {
     private EventEntityRepository eventEntityRepository;
 
     private LogEntity firstEntry;
+    private LogEntity secondEntry;
+    String eventId;
+    long eventDuration;
+    boolean alert;
+    EventEntity eventEntity;
 
     boolean waitingForThePair;
 
@@ -47,13 +52,12 @@ public class LogProcessor implements HasLogger, Runnable {
      */
     public void processEntry() {
 
-        LogEntity secondEntry = LogReader.secondEntryHashMap.get(firstEntry.getId());
+        secondEntry = LogReader.secondEntryHashMap.get(firstEntry.getId());
 
         if (secondEntry != null) {
 
-            String eventId = secondEntry.getId();
-            long eventDuration;
-            boolean alert = false;
+            eventId = secondEntry.getId();
+            alert = false;
 
             if (StringUtils.capitalize(firstEntry.getState()).equals(configuration.getStateFinished())) {
                 eventDuration = firstEntry.getTimestamp() - secondEntry.getTimestamp();
@@ -67,11 +71,8 @@ public class LogProcessor implements HasLogger, Runnable {
             if (alert) {
                 getLogger().warn(MessageFormat.format("Time elapsed for event ID {0}: {1}", eventId, eventDuration));
             }
-            else {
-                getLogger().debug(MessageFormat.format("Time elapsed for event ID {0}: {1}", eventId, eventDuration));
-            }
 
-            EventEntity eventEntity = new EventEntity(eventId, eventDuration, firstEntry.getType(), firstEntry.getHost(), alert);
+            eventEntity = new EventEntity(eventId, eventDuration, firstEntry.getType(), firstEntry.getHost(), alert);
             eventEntityRepository.save(eventEntity);
 
             // Only remove from hash after writing to DB
@@ -79,6 +80,12 @@ public class LogProcessor implements HasLogger, Runnable {
             LogReader.secondEntryHashMap.remove(eventId);
 
             waitingForThePair = false;
+
+            // Discard variables
+            eventEntity = null;
+            eventId = null;
+            firstEntry = null;
+            secondEntry = null;
 
         }
 

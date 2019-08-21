@@ -62,15 +62,24 @@ public class LogReader implements HasLogger {
             try {
                 inputStream = resource.getInputStream();
                 sc = new Scanner(inputStream, configuration.getFileEncoding());
+                int i = 0;
+                LogEntity logEntity;
+                String line;
+                String id;
+                LogProcessor logProcessor;
                 while (sc.hasNextLine()) {
-                    String line = sc.nextLine();
-                    LogEntity logEntity = jsonToObject(line);
-                    String id = logEntity.getId();
+                    i += 1;
+                    if (i % 10000 == 0){
+                        getLogger().info("Line: " + i);
+                    }
+                    line = sc.nextLine();
+                    logEntity = jsonToObject(line);
+                    id = logEntity.getId();
                     // If there is no entry in the first map, it means it is the first entry for that id, so add it to the map and invoke a thread to wait for the corresponding pair
                     if (!firstEntryHashMap.containsKey(id)) {
                         getLogger().debug("Key not found in first map. Key id=" + id);
                         firstEntryHashMap.put(id, logEntity);
-                        LogProcessor logProcessor = (LogProcessor) applicationContext.getBean("logProcessor", logEntity);
+                        logProcessor = (LogProcessor) applicationContext.getBean("logProcessor", logEntity);
                         executorService.submit(logProcessor);
                     }
                     // If there is already one entry in the first map, it means this one is the corresponding pair, so add it to the second map, and let the waiting thread pick it

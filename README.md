@@ -41,7 +41,13 @@ Certain configurations can be adjusted in the application.properties file, for i
 - Encoding of the log file being read
 - Number of threads in the thread pool, to process the logs
 
-Although this application was made to be able process large files, it was not yet tested with a large file (GB).   
+This application was made to be able process large files (GB).
+The following test was done:
+- Log file with 20 million lines, 1.6GB
+- Application configured with 1000 threads
+- It took around 20min to process the log file, and more 20min to finish writing 10 million records to the database 
+- Machine: Core i7 8th gen
+     
 
 
 ### Features and improvements planned for the next releases
@@ -56,4 +62,5 @@ Although this application was made to be able process large files, it was not ye
 - Added wait time in the loop that checks if the pair of the log has arrived.
 #### 2019-08-21
 - Improved shutdown of the thread pool
-
+- Improved memory handling and application performance
+- Added a counter that logs each time 10000 lines are read
