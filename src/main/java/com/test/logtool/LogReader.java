@@ -40,9 +40,11 @@ public class LogReader implements HasLogger {
     public static ConcurrentHashMap<String, LogEntity> firstEntryHashMap = new ConcurrentHashMap<String, LogEntity>();
     public static ConcurrentHashMap<String, LogEntity> secondEntryHashMap = new ConcurrentHashMap<String, LogEntity>();
 
-    public void processFile(String fileName) {
+    public boolean processFile(String fileName) {
 
         getLogger().info("Process file...");
+
+        boolean result = true;
 
         // Use the Spring resource loader to load the file
         Resource resource = resourceLoader.getResource("file:" + fileName);
@@ -50,6 +52,8 @@ public class LogReader implements HasLogger {
         if (!resource.exists()) {
 
             getLogger().error("The file specified was not found! File: " + fileName);
+
+            result = false;
 
         } else {
 
@@ -94,12 +98,14 @@ public class LogReader implements HasLogger {
                 }
             } catch (Exception e) {
                 getLogger().error(e.getMessage(), e);
+                result = false;
             } finally {
                 if (inputStream != null) {
                     try {
                         inputStream.close();
                     } catch (Exception ex) {
                         getLogger().error(ex.getMessage(), ex);
+                        result = false;
                     }
                 }
                 if (sc != null) {
@@ -119,6 +125,7 @@ public class LogReader implements HasLogger {
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                result = false;
             }
 
             // Wait until the ExecutorService says it is properly shutdown
@@ -132,6 +139,8 @@ public class LogReader implements HasLogger {
 
         getLogger().info("Finished processing file...");
 
+        return result;
+
     }
 
     /**
@@ -140,7 +149,7 @@ public class LogReader implements HasLogger {
      * @param logEntry
      * @return
      */
-    private LogEntity jsonToObject(String logEntry) {
+    public LogEntity jsonToObject(String logEntry) {
 
         ObjectMapper mapper = new ObjectMapper();
 

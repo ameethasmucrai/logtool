@@ -14,24 +14,28 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class LogtoolApplicationTests {
 
     @Autowired
-    private LogReader logReader;
-
-    @Autowired
-    ResourceLoader resourceLoader;
-
-    @Autowired
-    ApplicationContext applicationContext;
-
-    @Autowired
-    Configuration configuration;
+    private LogtoolApplication application;
 
 	@Test
-	public void applicationTest() {
+	public void isArgumentInvalidTest() {
+	    String[] args = {};
+        boolean isArgumentValid = application.isArgumentValid(args);
+        assertFalse(isArgumentValid);
 	}
+
+    @Test
+    public void isArgumentValidTest() {
+        String[] args = {"/tmp/example.log"};
+        boolean isArgumentValid = application.isArgumentValid(args);
+        assertTrue(isArgumentValid);
+    }
 
 }

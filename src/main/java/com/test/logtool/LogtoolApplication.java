@@ -41,7 +41,7 @@ public class LogtoolApplication {
      * @param args Arguments
      * @return True if the argument is valid
      */
-    private static boolean isArgumentValid(String args[]) {
+    public static boolean isArgumentValid(String args[]) {
 
         boolean isArgumentValid = true;
         log.info("Check arguments...");

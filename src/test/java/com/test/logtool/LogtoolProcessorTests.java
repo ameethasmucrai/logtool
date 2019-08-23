@@ -13,6 +13,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static org.junit.Assert.assertNull;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class LogtoolProcessorTests {
@@ -44,6 +46,8 @@ public class LogtoolProcessorTests {
         LogProcessor logProcessor1 = (LogProcessor) applicationContext.getBean("logProcessor", logEntityFirst);
         executorService.submit(logProcessor1);
 
+        System.out.println(logReader.firstEntryHashMap.size());
+
         LogEntity logEntitySecond = new LogEntity();
         logEntitySecond.setId("scsmbstgra");
         logEntitySecond.setState("FINISHED");
@@ -53,6 +57,16 @@ public class LogtoolProcessorTests {
         logReader.secondEntryHashMap.put("scsmbstgra", logEntitySecond);
         LogProcessor logProcessor2 = (LogProcessor) applicationContext.getBean("logProcessor", logEntitySecond);
         executorService.submit(logProcessor2);
+
+        // Wait a bit until the entries from the hashmaps get removed
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        assertNull(logReader.secondEntryHashMap.get("scsmbstgra"));
+        assertNull(logReader.firstEntryHashMap.get("scsmbstgra"));
 
     }
 

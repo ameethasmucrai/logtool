@@ -29,7 +29,12 @@ Under "data" folder:
 
 Execute, on the project root folder:
  
-./gradlew build && java -jar build/libs/logtool-1.0-SNAPSHOT.jar /tmp/example.log 
+./gradlew build && java -jar build/libs/logtool-1.0-SNAPSHOT.jar /tmp/example.log
+
+To run the unit tests, on the project root folder:
+
+./gradlew test --rerun-tasks  -i
+
 
 
 ### Additional information
@@ -64,3 +69,5 @@ The following test was done:
 - Improved shutdown of the thread pool
 - Improved memory handling and application performance
 - Added a counter that logs each time 10000 lines are read
+#### 2019-08-23
+- Improved unit tests
